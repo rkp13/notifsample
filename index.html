@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+</head>
+<body>
+	<style type="text/css">								
+		#login{			
+			border:1px #ccc solid;
+			border-radius: 10px;
+			background: #f4f4f4;
+			padding:10px;
+			margin-left:20px;
+			width: 400px;
+			height: 220px;
+
+		}
+		#namo{
+			margin: 5px;
+			float: left;
+			width: 300px;					
+		}			
+	</style>
+	
+	<div id="login">		
+		<div id="error"></div>
+		<form id="usernameForm">
+			<div style="float:left">
+				<p size="35">Email:<br><br>Password</p>
+			</div>
+			<div id="namo">
+				<input size="35" id="username"><br><br>
+				<input size="35" id="pass"><br><br>
+			</div>				
+			<center><input type="submit" value="Submit"></center><br>
+		</form>		
+		<center><p>Not a Member? Register <a href="/reg">here.</a></p></center>			
+	</div>
+
+	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript">
+		var socket = io.connect(); 			
+
+		$(function(){
+			var $usernameForm = $('#usernameForm');
+			var $error = $('#error');
+			var $reg = $('#reg');
+			var $login = $('#login');
+
+			$usernameForm.submit(function(e){
+				e.preventDefault();
+				var _name = $('#username').val();
+				var _pass = $('#pass').val();
+				socket.emit('checkUser',{name: _name , password: _pass},function(data){
+					document.cookie = 'oname='+data.id;
+				});
+			});
+
+			socket.on('validateUser',function(data){
+				console.log('Validation '+data.status);
+				if(data.status){	
+					if($('#username').val().length>0)
+						window.location = 'idinput';
+				}
+				else{					
+					alert('User not registered.')
+					window.location = '';
+				}
+			});
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<html>
+<head>
+	<style type="text/css">
+		#namesWrapper{
+			width: 140px;			
+			border:1px #ccc solid;
+			border-radius: 10px;
+			background: #f4f4f4;
+			padding:10px;
+			margin-left:20px;
+		}
+		img{
+			width: 50px;
+			height: 50px;
+		}
+		#notif-box{			
+			border:1px #ccc solid;
+			border-radius: 10px;
+			background: #f4f4f4;
+			padding:10px;
+			margin-left:20px;
+			height: 300px;
+			width: 400px;
+		}
+	</style>
+</head>
+<body>
+	<div id="omsg"></div>    
+	<br><br>
+
+	<div id="namesWrapper">		
+		<img id='btn-like' src='http://www.freeiconspng.com/uploads/hand-like-thumb-icon--1.png'/>
+		<img id='btn-post' src='https://upload.wikimedia.org/wikipedia/commons/e/e5/Post-it-note-transparent.png'/>		  
+	</div>	
+	<br>
+	<div id='notif-box'></div>
+	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript">
+		$(function(){
+			var socket = io.connect();
+
+			var $msg = $('#msg');
+			var $bLike = $('#btn-like');
+			var $bPost = $('#btn-post');	
+			var $box = $('#notif-box');
+
+			function getCookie(name){
+				var ar = document.cookie.split(';');
+				for(x=0; x<ar.length;x++){
+					t = ar[x];
+					t = t.trim();
+					if(t.substring(0,t.indexOf('=')) == name)
+						return t.substring(t.indexOf('=')+1);
+				}
+			}			
+
+			$bLike.click(function(){
+				socket.emit('notif-emit',{id: getCookie('oname'),type: 'like'});
+			});
+
+			$bPost.click(function(){
+				socket.emit('notif-emit',{id: getCookie('oname'),type: 'post'});
+			});
+
+			socket.on('notif-broadcast',function(data){
+				console.log(data.id+' '+data.type+' '+data.user);
+				if(data.id != getCookie('oname')){
+					switch(data.type){
+						case 'like':
+						$box.append('<strong>'+data.user+'</strong> just liked something</br>');
+						break;
+						case 'post':
+						$box.append('<strong>'+data.user+'</strong> just post something</br>');
+						break;	
+					}
+				}
+			});
+
+			function displayID(){            
+				$('#omsg').html('Your unique ID is '+getCookie('oname'));	
+			}
+			displayID();
+		});
+	</script>
+</body>
+</html>
